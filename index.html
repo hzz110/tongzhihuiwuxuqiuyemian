@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小程序需求收集与确认系统</title>
+    <!-- Element Plus 样式库 & FontAwesome 图标 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vue 3 & Element Plus JS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        #app {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px 16px 100px 16px;
+        }
+
+        /* 顶部导航与状态栏 */
+        .header-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            color: #111827;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .role-admin {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .role-client {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 登录遮罩 */
+        .auth-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .auth-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+        }
+
+        /* 需求卡片 */
+        .item-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+            transition: all 0.25s ease;
+        }
+
+        .item-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
+        }
+
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .item-number {
+            background: #f3f4f6;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .item-title-input {
+            flex-grow: 1;
+        }
+
+        .item-title-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 32px;
+        }
+
+        /* 多图展示网格 */
+        .reference-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .reference-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: start;
+        }
+
+        .reference-image-wrapper {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reference-image {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+            cursor: pointer;
+        }
+
+        .remove-img-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+
+        .remove-img-btn:hover {
+            background: rgba(220, 38, 38, 1);
+        }
+
+        .upload-trigger {
+            margin-top: 12px;
+        }
+
+        /* 客户回答 */
+        .answer-section {
+            margin-top: 12px;
+        }
+
+        .answer-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* 管理端悬浮底栏 */
+        .admin-actions {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            padding: 10px 24px;
+            border-radius: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            z-index: 100;
+        }
+
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <!-- 密码验证登录界面 -->
+        <div v-if="!isLoggedIn" class="auth-container">
+            <div class="auth-box">
+                <div class="auth-icon">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h2>同郅数字会务系统需求确认工作台</h2>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">请输入访问密码以查看或填写需求资料</p>
+                
+                <el-form @submit.prevent="handleLogin">
+                    <el-form-item>
+                        <el-input 
+                            v-model="inputPassword" 
+                            type="password" 
+                            placeholder="请输入客户/管理员密码" 
+                            size="large"
+                            show-password
+                            @keyup.enter="handleLogin"
+                        >
+                            <template #prefix>
+                                <i class="fa-solid fa-lock"></i>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                    <el-button 
+                        type="primary" 
+                        size="large" 
+                        style="width: 100%; border-radius: 8px; margin-top: 8px;" 
+                        @click="handleLogin"
+                    >
+                        开启工作台
+                    </el-button>
+                </el-form>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div v-else>
+            <!-- 顶部栏 -->
+            <div class="header-card">
+                <div class="header-title">
+                    <h1>同郅数字会务系统小程序需求收集清单</h1>
+                    <span class="role-badge" :class="isAdmin ? 'role-admin' : 'role-client'">
+                        <i :class="isAdmin ? 'fa-solid fa-user-gear' : 'fa-solid fa-user'"></i>
+                        {{ isAdmin ? '管理员模式' : '客户填写模式' }}
+                    </span>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <span class="status-tag">
+                        <i :class="isLocked ? 'fa-solid fa-lock text-red-500' : 'fa-solid fa-lock-open text-green-500'"></i>
+                        {{ isLocked ? '状态：已锁定填写' : '状态：可自由编辑' }}
+                    </span>
+                    
+                    <span v-if="autoSaving" class="status-tag" style="color: #6366f1;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> 保存中...
+                    </span>
+                    <span v-else class="status-tag" style="color: #10b981;">
+                        <i class="fa-solid fa-circle-check"></i> 实时同步云端
+                    </span>
+
+                    <el-button size="small" circle @click="logout" title="退出登录">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </el-button>
+                </div>
+            </div>
+
+            <!-- 需求项目列表 -->
+            <div class="items-container">
+                <div v-for="(item, index) in items" :key="item.id" class="item-card">
+                    <!-- 标题行 -->
+                    <div class="item-header">
+                        <div class="item-number">{{ index + 1 }}</div>
+                        <!-- 管理员且非锁定状态下可修改标题 -->
+                        <div v-if="isAdmin && !isLocked" class="item-title-input">
+                            <el-input 
+                                v-model="item.title" 
+                                placeholder="输入需要客户提供的项目名称（例如：认证截图、企业 Logo、Banner 图需求...）" 
+                                @input="triggerAutoSave"
+                            />
+                        </div>
+                        <div v-else class="item-title-text">
+                            {{ item.title || '（未设定标题）' }}
+                        </div>
+
+                        <!-- 管理员删除需求项 -->
+                        <el-button 
+                            v-if="isAdmin && !isLocked" 
+                            type="danger" 
+                            link 
+                            @click="deleteItem(index)"
+                            style="margin-left: auto;"
+                        >
+                            <i class="fa-solid fa-trash-can"></i>
+                        </el-button>
+                    </div>
+
+                    <!-- 参考图展示/多图上传区域 -->
+                    <div class="reference-section" v-if="(item.images && item.images.length > 0) || (isAdmin && !isLocked)">
+                        <div class="reference-title">
+                            <i class="fa-regular fa-images"></i>
+                            <span>参考图示及修改说明（点击可放大查看完整图片）：</span>
+                        </div>
+                        
+                        <!-- 多图展示网格 -->
+                        <div class="image-grid" v-if="item.images && item.images.length > 0">
+                            <div v-for="(img, imgIdx) in item.images" :key="imgIdx" class="reference-image-wrapper">
+                                <el-image 
+                                    :src="img" 
+                                    :preview-src-list="item.images" 
+                                    :initial-index="imgIdx"
+                                    fit="contain"
+                                    class="reference-image"
+                                >
+                                </el-image>
+                                <div 
+                                    v-if="isAdmin && !isLocked" 
+                                    class="remove-img-btn" 
+                                    @click="removeImage(item, imgIdx)"
+                                    title="删除此图"
+                                >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 管理员本地文件选择上传按钮 -->
+                        <div v-if="isAdmin && !isLocked" class="upload-trigger">
+                            <el-upload
+                                action="#"
+                                :auto-upload="false"
+                                :show-file-list="false"
+                                :on-change="(file) => handleImageUpload(file, item)"
+                                accept="image/*"
+                                multiple
+                            >
+                                <el-button size="small" type="primary" plain>
+                                    <i class="fa-solid fa-plus" style="margin-right: 6px;"></i>选择本地图片上传
+                                </el-button>
+                            </el-upload>
+                        </div>
+                    </div>
+
+                    <!-- 客户回答文本框 -->
+                    <div class="answer-section">
+                        <label class="answer-label">客户回答 / 资料补充：</label>
+                        <el-input 
+                            v-model="item.answer" 
+                            type="textarea" 
+                            :rows="3" 
+                            :disabled="isLocked && !isAdmin"
+                            :placeholder="(isLocked && !isAdmin) ? '当前已锁定，无法修改回答' : '在此填写说明、百度网盘地址、文本需求或意见...'" 
+                            @input="triggerAutoSave"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理员底栏控制按钮 -->
+            <div v-if="isAdmin" class="admin-actions">
+                <el-button type="primary" round @click="addNewItem" :disabled="isLocked">
+                    <i class="fa-solid fa-plus" style="margin-right: 6px;"></i>增加需求项
+                </el-button>
+
+                <el-button 
+                    :type="isLocked ? 'danger' : 'warning'" 
+                    round 
+                    @click="toggleLock"
+                >
+                    <i :class="isLocked ? 'fa-solid fa-lock' : 'fa-solid fa-lock-open'" style="margin-right: 6px;"></i>
+                    {{ isLocked ? '锁定页面(禁止更改)' : '解锁客户编辑' }}
+                </el-button>
+
+                <el-button type="info" round @click="openPasswordDialog">
+                    <i class="fa-solid fa-key" style="margin-right: 6px;"></i>设置密码
+                </el-button>
+            </div>
+
+            <!-- 修改密码弹窗 -->
+            <el-dialog v-model="passwordDialogVisible" title="设置密码" width="360px" center>
+                <el-form label-position="top">
+                    <el-form-item label="管理员密码">
+                        <el-input v-model="passwords.admin" show-password></el-input>
+                    </el-form-item>
+                    <el-form-item label="客户密码">
+                        <el-input v-model="passwords.client" show-password></el-input>
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <el-button @click="passwordDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="savePasswords">确定保存</el-button>
+                </template>
+            </dialog>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const isLoggedIn = ref(false);
+                const isAdmin = ref(false);
+                const inputPassword = ref('');
+
+                const isLocked = ref(false);
+                const autoSaving = ref(false);
+                const passwordDialogVisible = ref(false);
+
+                // 默认密码
+                const passwords = reactive({
+                    admin: 'admin123',
+                    client: '123456'
+                });
+
+                // 需求项目列表
+                const items = ref([]);
+
+                let saveTimer = null;
+                let pollTimer = null;
+
+                // 从后端 Cloudflare D1 拉取最新数据
+                const fetchData = async () => {
+                    try {
+                        const res = await fetch('/api/data');
+                        if (res.ok) {
+                            const data = await res.json();
+                            items.value = data.items || [];
+                            isLocked.value = data.isLocked || false;
+                            if (data.passwords) {
+                                passwords.admin = data.passwords.admin;
+                                passwords.client = data.passwords.client;
+                            }
+                        }
+                    } catch (err) {
+                        console.error("从云端同步数据失败:", err);
+                    }
+                };
+
+                // 防抖自动保存到 Cloudflare D1
+                const triggerAutoSave = () => {
+                    autoSaving.value = true;
+                    if (saveTimer) clearTimeout(saveTimer);
+                    
+                    saveTimer = setTimeout(async () => {
+                        try {
+                            const res = await fetch('/api/data', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    items: items.value,
+                                    isLocked: isLocked.value,
+                                    passwords: passwords
+                                })
+                            });
+                            const result = await res.json();
+                            if (!res.ok || result.error) {
+                                ElementPlus.ElMessage.error('云端保存失败: ' + (result.error || '未知错误'));
+                            }
+                        } catch (err) {
+                            console.error("保存至云端失败:", err);
+                            ElementPlus.ElMessage.error('保存至云端网络异常');
+                        } finally {
+                            autoSaving.value = false;
+                        }
+                    }, 600);
+                };
+
+                // 密码登录流程
+                const handleLogin = () => {
+                    if (inputPassword.value === passwords.admin) {
+                        isLoggedIn.value = true;
+                        isAdmin.value = true;
+                        ElementPlus.ElMessage.success('已以管理员模式进入系统');
+                    } else if (inputPassword.value === passwords.client) {
+                        isLoggedIn.value = true;
+                        isAdmin.value = false;
+                        ElementPlus.ElMessage.success('已以客户模式进入系统');
+                    } else {
+                        ElementPlus.ElMessage.error('密码错误，请重新输入！');
+                    }
+                };
+
+                const logout = () => {
+                    isLoggedIn.value = false;
+                    inputPassword.value = '';
+                };
+
+                const addNewItem = () => {
+                    items.value.push({
+                        id: 'item_' + Date.now(),
+                        title: '新需求项名称',
+                        images: [],
+                        answer: ''
+                    });
+                    triggerAutoSave();
+                };
+
+                const deleteItem = (index) => {
+                    items.value.splice(index, 1);
+                    triggerAutoSave();
+                };
+
+                const toggleLock = () => {
+                    isLocked.value = !isLocked.value;
+                    triggerAutoSave();
+                    ElementPlus.ElMessage({
+                        message: isLocked.value ? '已锁定页面，客户目前仅能查看，无法更改回答' : '已解锁，客户可修改回答',
+                        type: isLocked.value ? 'warning' : 'success'
+                    });
+                };
+
+                // 本地图片选择、自动压缩优化并保存到 D1 数据库
+                const handleImageUpload = (file, item) => {
+                    const rawFile = file.raw;
+                    const reader = new FileReader();
+                    
+                    reader.readAsDataURL(rawFile);
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = () => {
+                            // 创建 Canvas 压缩图片尺寸（最大宽度/高度缩放到 1000px 以内），保证数据库不超限
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            const maxSide = 1000;
+
+                            if (width > maxSide || height > maxSide) {
+                                if (width > height) {
+                                    height = Math.round((height * maxSide) / width);
+                                    width = maxSide;
+                                } else {
+                                    width = Math.round((width * maxSide) / height);
+                                    height = maxSide;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            // 导出为 70% 压缩质量的轻量 Base64 串
+                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                            if (!item.images) item.images = [];
+                            item.images.push(compressedBase64);
+                            triggerAutoSave();
+                            ElementPlus.ElMessage.success('图片优化成功并已保存');
+                        };
+                    };
+                };
+
+                // 删除单张图
+                const removeImage = (item, imgIdx) => {
+                    item.images.splice(imgIdx, 1);
+                    triggerAutoSave();
+                };
+
+                const openPasswordDialog = () => {
+                    passwordDialogVisible.value = true;
+                };
+
+                const savePasswords = () => {
+                    triggerAutoSave();
+                    passwordDialogVisible.value = false;
+                    ElementPlus.ElMessage.success('密码修改保存成功');
+                };
+
+                onMounted(() => {
+                    fetchData();
+                    // 3 秒定期轮询拉取最新数据
+                    pollTimer = setInterval(fetchData, 3000);
+                });
+
+                onUnmounted(() => {
+                    if (pollTimer) clearInterval(pollTimer);
+                });
+
+                return {
+                    isLoggedIn,
+                    isAdmin,
+                    inputPassword,
+                    isLocked,
+                    autoSaving,
+                    items,
+                    passwords,
+                    passwordDialogVisible,
+                    handleLogin,
+                    logout,
+                    triggerAutoSave,
+                    addNewItem,
+                    deleteItem,
+                    toggleLock,
+                    handleImageUpload,
+                    removeImage,
+                    openPasswordDialog,
+                    savePasswords
+                };
+            }
+        })
+        .use(ElementPlus)
+        .mount('#app');
+    </script>
+</body>
+</html>
