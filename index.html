@@ -495,6 +495,8 @@
 
                 // 从后端 Cloudflare D1 拉取最新数据
                 const fetchData = async () => {
+                    // 关键：如果密码弹窗正处于打开状态，跳过同步云端密码，防止输入被打断！
+                    if (pwdDialogVisible.value || showPwdDialog.value) return;
                     try {
                         const res = await fetch('/api/data');
                         if (res.ok) {
