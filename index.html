@@ -464,7 +464,7 @@
                     <el-button @click="passwordDialogVisible = false">取消</el-button>
                     <el-button type="primary" @click="savePasswords">确定保存</el-button>
                 </template>
-            </dialog>
+            </el-dialog>
         </div>
     </div>
 
@@ -495,8 +495,8 @@
 
                 // 从后端 Cloudflare D1 拉取最新数据
                 const fetchData = async () => {
-                    // 关键：如果密码弹窗正处于打开状态，跳过同步云端密码，防止输入被打断！
-                    if (pwdDialogVisible.value || showPwdDialog.value) return;
+                    // 关键修复：防止弹窗开启时同步覆盖掉正在修改的密码
+                    if (passwordDialogVisible.value) return;
                     try {
                         const res = await fetch('/api/data');
                         if (res.ok) {
